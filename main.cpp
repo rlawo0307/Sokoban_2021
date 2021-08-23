@@ -2,5 +2,6 @@
 
 int main()
 {
+	//ぉしいけぉしいけ
 	return 0;
 }
