@@ -121,7 +121,7 @@ void Move(char(*map)[MAP_MAX_COL],int* cur_x, int* cur_y, int line, int stage)
 	if (map[next_y][next_x] != '#' && next_x >= 0 && next_y >= 0)
 		if (map[next_y][next_x] == '$')
 		{
-			map[]k
+			map[]
 		}
 	{
 		map[*cur_y][*cur_x] = ' ';
