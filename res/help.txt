@@ -1,0 +1,13 @@
+left(a), right(d), up(w), down(s)
+
+undo(u) : Up to 5 moves can be undone
+replay(r) : Restart the current map from the beginning
+new(n) : start over from the first map
+exit(e) : exit game
+save(p) : save game
+file load(f) : load saved game and restart
+display help(h) : show command
+top(t) : show game rank, when next number comes after t you can see the ranking of that stage
+
+*Press q to go back
+end
