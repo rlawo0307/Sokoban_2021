@@ -2,8 +2,9 @@
 
 #include<stdio.h>
 #include<string.h>
-#include <windows.h>
-#include <conio.h>
+//#include <windows.h>
+//#include <conio.h>
+
 #include "control.h"
 #include "game.h"
 #include "command.h"
