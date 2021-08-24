@@ -29,3 +29,13 @@ void Display_Help(char(*map)[MAP_MAX_COL], int stage)
 	system("cls");
 	Print_Map(map, stage);
 }
+
+void Restart_Cur_Map(char(*initial_map)[MAP_MAX_COL], char(*cur_map)[MAP_MAX_COL], int stage, int* keep, int* player_x, int* player_y) //undo, time reset
+{
+	system("cls");
+	for (int i = 0; i < MAP_MAX_ROW; i++)
+		for (int j = 0; j < MAP_MAX_COL; j++)
+			cur_map[i][j] = initial_map[i][j];
+
+	Print_Map(initial_map, stage);
+}

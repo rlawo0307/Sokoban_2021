@@ -5,4 +5,5 @@
 #include <conio.h>
 #include "game.h"
 
-void Display_Help(char(*map)[MAP_MAX_COL], int stage);
+void Display_Help(char(*)[MAP_MAX_COL], int);
+void Restart_Cur_Map(char(*)[MAP_MAX_COL], char(*)[MAP_MAX_COL], int);

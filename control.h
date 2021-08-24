@@ -4,5 +4,5 @@
 #include <conio.h>
 #include <Windows.h>
 
-int Get_Cursor(int op);
-void Cursor_Move(int x, int y);
+int Get_Cursor(int);
+void Cursor_Move(int, int);
