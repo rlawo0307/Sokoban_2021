@@ -41,9 +41,6 @@
     <ClInclude Include="command.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="start.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="func.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

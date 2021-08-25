@@ -149,7 +149,6 @@
     <ClInclude Include="command.h" />
     <ClInclude Include="control.h" />
     <ClInclude Include="func.h" />
-    <ClInclude Include="start.h" />
     <ClInclude Include="var.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

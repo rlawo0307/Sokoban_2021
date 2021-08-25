@@ -1,11 +1,12 @@
 #include "start.h"
 
-void Show_Start_Screen()
+void New_Game(PLAYER* player)
 {
 	char str[50];
 	int line = 0;
+	char key = ' ';
 
-	FILE* fp = fopen("./res/start_screen.txt", "r");
+	FILE* fp = fopen("./res/ID_inputbox.txt", "r");
 	if (fp == NULL)
 	{
 		printf("FILE OPEN FAIL\n");
@@ -23,34 +24,21 @@ void Show_Start_Screen()
 		line++;
 	}
 	fclose(fp);
-}
 
-void Enter_ID(char* ID)
-{
 	Cursor_Move(POS_X + 16, POS_Y + 2);
-	scanf("%s", ID);
-}
-
-void Start_Menu(char* ID)
-{
-	char key = ' ';
+	scanf("%s", player->ID);
 
 	Cursor_Move(POS_X + 50, POS_Y + 6);
-	while (key != '\n' && key != 'f' && key != 'h' && key != 't')
-		key = getch();
-
-	switch (key)
+	while (key != 'z' && key != 'h' && key != 't')
 	{
-	case '\n': Play(); break;
-	case 'f': Load(); break;
-	case 'h': Display_Help(); Start_Screen(ID); break;
-	case 't': break;
+		key = getch();
+		switch (key)
+		{
+		case 'z': Play(player, 0, NULL); break;
+		case 'h': break;
+		case 't': break;
+		}
 	}
 }
 
-void Start_Screen(char* ID)
-{
-	Show_Start_Screen();
-	Enter_ID(ID);
-	Start_Menu(ID);
-}
+

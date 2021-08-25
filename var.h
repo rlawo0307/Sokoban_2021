@@ -11,19 +11,12 @@ typedef struct player
 	int play_time;
 }PLAYER;
 
-typedef struct initial_data
-{
-	char map[MAP_MAX_ROW][MAP_MAX_COL];
-	int map_line;
-	int box, keep;
-	int player_x, player_y;
-}DATA1;
-
-typedef struct cur_data
+typedef struct map
 {
 	char map[MAP_MAX_ROW][MAP_MAX_COL];
 	int map_line;
 	int box, keep;
 	int player_x, player_y;
 	int stage;
-}DATA2;
+	MAP* next;
+}MAP;
