@@ -28,63 +28,89 @@ void Start_Screen(char* user)
 	system("cls");
 }
 
-void Print_Map(char(*map)[MAP_MAX_COL], int stage)
+void Deep_Copy(DATA1* init_data, DATA2* cur_data)
 {
-	Cursor_Move(POS_X, POS_Y);
-	printf("< STAGE %d >\n\n", stage);
-	for (int i = stage - 1 ? 0 : 1; i < MAP_MAX_ROW; i++)
-	{
-		Cursor_Move(Get_Cursor(1) + POS_X, Get_Cursor(0));
-		printf("%s", map[i]);
-	}
+	for (int i = 0; i < MAP_MAX_ROW; i++)
+		for (int j = 0; j < MAP_MAX_COL; j++)
+			cur_data->map[i][j] = init_data->map[i][j];
+
+	cur_data->map_line = init_data->map_line;
+	cur_data->box = init_data->box;
+	cur_data->keep = init_data->keep;
+	cur_data->player_x = init_data->player_x;
+	cur_data->player_y = init_data->player_y;
 }
 
-void Load_Map(char(*map)[MAP_MAX_COL], FILE* fp, int* line)
+void Init(PLAYER* user, DATA1* init_data, DATA2* cur_data)
 {
+	for (int i = 0; i < MAP_MAX_ROW; i++)
+		memset(init_data->map[i], 0, sizeof(char) * MAP_MAX_COL);
+	init_data->map_line = 0;
+	init_data->box = init_data->keep = 0;
+	init_data->player_x = init_data->player_y = 0;
+
+	Deep_Copy(init_data, cur_data);
+	cur_data->stage = 0;
+}
+
+void Load_Map(FILE* fp, DATA1* init_data)
+{
+	int line = 0;
 	while (1)
 	{
-		fgets(map[*line], sizeof(map[*line]), fp);
-		if ((*line != 0 && !strncmp(map[*line], "map", 3)) || !strncmp(map[*line], "end", 3))
+		fgets(init_data->map[line], sizeof(init_data->map[line]), fp);
+		if ((line != 0 && !strncmp(init_data->map[line], "map", 3)) || !strncmp(init_data->map[line], "end", 3))
 		{
-			memset(map[*line], 0, sizeof(MAP_MAX_COL));
+			memset(init_data->map[line], 0, MAP_MAX_COL);
 			break;
 		}
 		else
-			(*line)++;
+			(line)++;
+	}
+	init_data->map_line = line;
+}
+
+void Print_Map(DATA2* cur_data)
+{
+	Cursor_Move(POS_X, POS_Y);
+	printf("< STAGE %d >\n\n", cur_data->stage);
+	for (int i = cur_data->stage - 1 ? 0 : 1; i < cur_data->map_line; i++)
+	{
+		Cursor_Move(Get_Cursor(1) + POS_X, Get_Cursor(0));
+		printf("%s", cur_data->map[i]);
 	}
 }
 
-void Check_Box_Keep(char(*initial_map)[MAP_MAX_COL], char(*cur_map)[MAP_MAX_COL], int(*keep_check)[MAP_MAX_COL], int line, int* box, int* keep, int* player_x, int* player_y, int stage)
+void Check_Box_Keep(DATA1* init_data, DATA2* cur_data)
 {
-	for (int i = 0; i < line; i++)
-		for (int j = 0; j < strlen(initial_map[i]); j++)
-		{
-			if (initial_map[i][j] == '$')
-				(*box)++;
-			else if (initial_map[i][j] == 'O')
+	for (int i = 0; i < init_data->map_line; i++)
+		for (int j = 0; j < MAP_MAX_COL; j++)
+			if (init_data->map[i][j] == '$')
+				(init_data->box)++;
+			else if (init_data->map[i][j] == 'O')
+				(init_data->keep)++;
+			else if (init_data->map[i][j] == '@')
 			{
-				keep_check[i][j] = 1;
-				(*keep)++;
+				init_data->player_x = j;
+				init_data->player_y = i;
 			}
-			else if (initial_map[i][j] == '@')
-			{
-				*player_x = j;
-				*player_y = i;
-			}
-			cur_map[i][j] = initial_map[i][j];
-		}
 
-	if (*box == *keep)
-		Print_Map(cur_map, stage);
+	if (init_data->box == init_data->keep)
+	{
+		Deep_Copy(init_data, cur_data);
+		(cur_data->stage)++;
+		Print_Map(cur_data);
+	}
 	else
 		printf("Check Your Map!\n");
 }
 
-void Player_Move(char(*map)[MAP_MAX_COL], int(*keep_check)[MAP_MAX_COL], char key, int* player_x, int* player_y, int line, int stage, int* keep)
+void Player_Move(DATA1* init_data, DATA2* cur_data, char key)
 {
-	char check;
-	int next_x = *player_x, next_y = *player_y;
-	int check_x = *player_x, check_y = *player_y;
+	int cur_x, cur_y, next_x, next_y, check_x, check_y;
+
+	next_x = check_x = cur_x = cur_data->player_x;
+	next_y = check_y = cur_y = cur_data->player_y;
 
 	switch (key)
 	{
@@ -94,48 +120,53 @@ void Player_Move(char(*map)[MAP_MAX_COL], int(*keep_check)[MAP_MAX_COL], char ke
 	case 's': next_y++; check_y += 2; break;
 	}
 
-	if (map[next_y][next_x] == ' ')
+	char next_c = cur_data->map[next_y][next_x];
+	char isbox = init_data->map[cur_y][cur_x];
+	char check_c = cur_data->map[check_y][check_x];
+
+	if (next_c == ' ')
 	{
-		map[next_y][next_x] = '@';
-		if (keep_check[*player_y][*player_x] == 1)
-			map[*player_y][*player_x] = 'O';
+		cur_data->map[next_y][next_x] = '@';
+		if (isbox == 'O')
+			cur_data->map[cur_y][cur_x] = 'O';
 		else
-			map[*player_y][*player_x] = ' ';
+			cur_data->map[cur_y][cur_x] = ' ';
 	}
-	else if (map[next_y][next_x] == '$')
+	else if (next_c == '$')
 	{
-		check = map[check_y][check_x];
-		if (check == ' ')
+		if (check_c == ' ')
 		{
-			map[*player_y][*player_x] = ' ';
-			map[next_y][next_x] = '@';
-			map[check_y][check_x] = '$';
+			cur_data->map[cur_y][cur_x] = ' ';
+			cur_data->map[next_y][next_x] = '@';
+			cur_data->map[check_y][check_x] = '$';
 		}
-		else if (check == 'O')
+		else if (check_c == 'O')
 		{
-			map[next_y][next_x] = '@';
-			map[check_y][check_x] = '$';
-			if (keep_check[*player_y][*player_x] == 1)
-				map[*player_y][*player_x] = 'O';
+			cur_data->map[next_y][next_x] = '@';
+			cur_data->map[check_y][check_x] = '$';
+			if (isbox == 'O')
+				cur_data->map[cur_y][cur_x] = 'O';
 			else
-				map[*player_y][*player_x] = ' ';
+				cur_data->map[cur_y][cur_x] = ' ';
 		}
 		else
 			return;
 	}
-	else if (map[next_y][next_x] == 'O')
+	else if (next_c == 'O')
 	{
-		map[next_y][next_x] = '@';
-		if (keep_check[*player_y][*player_x] == 1)
-			map[*player_y][*player_x] = 'O';
+		cur_data->map[next_y][next_x] = '@';
+		if (isbox == 'O')
+			cur_data->map[cur_y][cur_x] = 'O';
 		else
-			map[*player_y][*player_x] = ' ';
+			cur_data->map[cur_y][cur_x] = ' ';
 	}
 	else
 		return;
-	*player_x = next_x;
-	*player_y = next_y;
+
+	cur_data->player_x = next_x;
+	cur_data->player_y = next_y;
 
 	system("cls");
-	Print_Map(map, stage);
+	Print_Map(cur_data);
 }
+

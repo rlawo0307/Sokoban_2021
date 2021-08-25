@@ -9,40 +9,17 @@
 #include "command.h"
 #include "var.h"
 
-typedef struct player
-{
-	char ID[30];
-	int play_time;
-}PLAYER;
-
-typedef struct initial_data
-{
-	char map[MAP_MAX_ROW][MAP_MAX_COL];
-	int map_line;
-	int box, keep;
-	int player_x, player_y;
-	int stage;
-}DATA1;
-
-typedef struct cur_data
-{
-	char map[MAP_MAX_ROW][MAP_MAX_COL];
-	int map_line;
-	int box, keep;
-	int player_x, player_y;
-	int stage;
-}DATA2;
-
 //구조체 사용하는 형태로 바꾸기
 int main()
 {
-	int keep_check[MAP_MAX_ROW][MAP_MAX_COL];
 	char key;
 	PLAYER player;
 	DATA1 init_data;
 	DATA2 cur_data;
+	bool game = true;
 
-	Start_Screen(user);
+	//player.play_time = 0;
+	Start_Screen(player.ID);
 
 	FILE* fp = fopen("./res/map.txt", "r");
 	if (fp == NULL)
@@ -51,45 +28,36 @@ int main()
 		return 0;
 	}
 
-	while (stage)
+	while (game)
 	{
-		line = box = keep = player_x = player_y = 0;
+		Init(&player, &init_data, &cur_data);
+		Load_Map(fp, &init_data);
+		Check_Box_Keep(&init_data, &cur_data);
 
-		for (int i = 0; i < MAP_MAX_ROW; i++)
-		{
-			memset(initial_map[i], 0, sizeof(char) * MAP_MAX_COL);
-			memset(cur_map[i], 0, sizeof(char) * MAP_MAX_COL);
-			memset(keep_check[i], 0, sizeof(char) * MAP_MAX_COL);
-		}
-
-		Load_Map(initial_map, fp, &line);
-		Check_Box_Keep(initial_map, cur_map, keep_check, line, &box, &keep, &player_x, &player_y, stage);
-
-		while (keep != 0)
+		while (cur_data.keep != 0)
 		{
 			key = getch();
 			switch (key)
 			{
 			case 'u': break;
-			case 'r': Restart_Cur_Map(initial_map, cur_map, stage, &keep, &player_x, &player_y); break;
+			case 'r': Restart_Cur_Map(&init_data, &cur_data); break;
 			case 'n': break;
 			case 'e': return 0;
 			case 'p': break;
 			case 'f': break;
-			case 'h': Display_Help(cur_map, stage); break;
+			case 'h': Display_Help(&cur_data); break;
 			case 't': break;
 			case 'a': 
 			case 'd': 
 			case 'w': 
-			case 's': Player_Move(cur_map, keep_check, key, &player_x, &player_y, line, stage, &keep); break;
+			case 's': Player_Move(&init_data, &cur_data, key); break;
 			}
 		}
-		stage++;
-
 		if (fgetc(fp) == EOF)
 			break;
 	}
 	fclose(fp);
 	printf("\nSokoban Clear~!\n");
+
 	return 0;
 }

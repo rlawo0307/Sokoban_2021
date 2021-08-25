@@ -1,6 +1,15 @@
 #include "command.h"
+#include "game.h"
 
-void Display_Help(char(*map)[MAP_MAX_COL], int stage)
+void Restart_Cur_Map(DATA1* init_data, DATA2* cur_data)
+{
+	Deep_Copy(init_data, cur_data);
+	//undo var reset
+	system("cls");
+	Print_Map(cur_data);
+}
+
+void Display_Help(DATA2* cur_data)
 {
 	char str[100];
 	char key = ' ';
@@ -13,7 +22,6 @@ void Display_Help(char(*map)[MAP_MAX_COL], int stage)
 	}
 
 	system("cls");
-
 	while (1)
 	{
 		fgets(str, sizeof(str), fp);
@@ -27,15 +35,7 @@ void Display_Help(char(*map)[MAP_MAX_COL], int stage)
 		key = getch();
 
 	system("cls");
-	Print_Map(map, stage);
+	Print_Map(cur_data);
 }
 
-void Restart_Cur_Map(char(*initial_map)[MAP_MAX_COL], char(*cur_map)[MAP_MAX_COL], int stage, int* keep, int* player_x, int* player_y) //undo, time reset
-{
-	system("cls");
-	for (int i = 0; i < MAP_MAX_ROW; i++)
-		for (int j = 0; j < MAP_MAX_COL; j++)
-			cur_map[i][j] = initial_map[i][j];
 
-	Print_Map(initial_map, stage);
-}
