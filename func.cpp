@@ -1,31 +1,18 @@
-#include "game.h"
+#include "func.h"
+#include "command.h"
 
-void Start_Screen(char* user)
+
+
+void Init(DATA1* init_data, DATA2* cur_data)
 {
-	char str[50];
-	int line = 0;
+	for (int i = 0; i < MAP_MAX_ROW; i++)
+		memset(init_data->map[i], 0, sizeof(char) * MAP_MAX_COL);
+	init_data->map_line = 0;
+	init_data->box = init_data->keep = 0;
+	init_data->player_x = init_data->player_y = 0;
 
-	FILE* fp = fopen("./res/start_screen.txt", "r");
-	if (fp == NULL)
-	{
-		printf("FILE OPEN FAIL\n");
-		return;
-	}
-
-	Cursor_Move(POS_X, POS_Y);
-	while (1)
-	{
-		fgets(str, sizeof(str), fp);
-		if (!strcmp(str, "end"))
-			break;
-		Cursor_Move(POS_X, POS_Y + line);
-		printf("%s", str);
-		line++;
-	}
-	Cursor_Move(POS_X + 16, POS_Y + 3);
-	scanf("%s", user);
-	fclose(fp);
-	system("cls");
+	Deep_Copy(init_data, cur_data);
+	cur_data->stage = 0;
 }
 
 void Deep_Copy(DATA1* init_data, DATA2* cur_data)
@@ -39,18 +26,6 @@ void Deep_Copy(DATA1* init_data, DATA2* cur_data)
 	cur_data->keep = init_data->keep;
 	cur_data->player_x = init_data->player_x;
 	cur_data->player_y = init_data->player_y;
-}
-
-void Init(PLAYER* user, DATA1* init_data, DATA2* cur_data)
-{
-	for (int i = 0; i < MAP_MAX_ROW; i++)
-		memset(init_data->map[i], 0, sizeof(char) * MAP_MAX_COL);
-	init_data->map_line = 0;
-	init_data->box = init_data->keep = 0;
-	init_data->player_x = init_data->player_y = 0;
-
-	Deep_Copy(init_data, cur_data);
-	cur_data->stage = 0;
 }
 
 void Load_Map(FILE* fp, DATA1* init_data)
@@ -103,6 +78,13 @@ void Check_Box_Keep(DATA1* init_data, DATA2* cur_data)
 	}
 	else
 		printf("Check Your Map!\n");
+}
+
+void Ready(FILE* fp, PLAYER* player, DATA1* init_data, DATA2* cur_data)
+{
+	Init(init_data, cur_data);
+	Load_Map(fp, init_data);
+	Check_Box_Keep(init_data, cur_data);
 }
 
 void Player_Move(DATA1* init_data, DATA2* cur_data, char key)
