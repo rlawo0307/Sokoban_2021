@@ -7,8 +7,7 @@
 
 void Show_Start_Screen();
 void Menu(PLAYER*, MAP*);
-
 bool Load_Map(MAP*);
 void Init_Data(MAP*, MAP*);
-void Deep_Copy(MAP*, MAP*);
 void Print_Map(MAP*);
+void Input_ID(PLAYER*);

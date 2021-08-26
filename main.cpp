@@ -15,7 +15,6 @@ int main()
 		printf("Check Your Map!\n");
 		return 0;
 	}
-	//Show_Start_Screen();
 	Menu(&player, map);
 	return 0;
 }

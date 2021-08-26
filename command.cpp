@@ -1,17 +1,14 @@
 #include "command.h"
 #include "func.h"
 
-/*================================================
-start command
-================================================*/
 void Play(PLAYER* player, MAP* init_map, int op)
 {
 	MAP* map_p = init_map;
 	MAP cur_map;
 	MAP* tmp = (MAP*)calloc(1, sizeof(MAP));
-	bool game = true;
 	char key;
 	int i = 0, stage = 1;
+	clock_t start_time;
 
 	system("cls");
 	Input_ID(player);
@@ -33,52 +30,50 @@ void Play(PLAYER* player, MAP* init_map, int op)
 		i++;
 	}
 	
-	while (1)
+	start_time = clock();
+	while (map_p != NULL)
 	{
-		if (map_p == NULL)
+		if (op == NEW_GAME)
 		{
-			printf("\nSokoban Clear~!\n");
-			break;
+			Init_Data(map_p, tmp);
+			Init_Data(tmp, &cur_map);
 		}
 		else
+			Init_Data(&cur_map, tmp);
+
+		Print_Map(&cur_map);
+		while (1)
 		{
-			if (op == NEW_GAME)
+			key = getch();
+			switch (key)
 			{
-				Init_Data(map_p, tmp);
-				Init_Data(tmp, &cur_map);
+			case 'u': Undo(tmp, &cur_map); break;
+			case 'r': Restart_Cur_Map(map_p, &cur_map, tmp); break;
+			case 'n': Restart_Game(init_map, &cur_map, &map_p, &stage, &start_time); break;
+			case 'e': Save(player, &cur_map, start_time); return;
+			case 'p': Save(player, &cur_map, start_time); break;
+			case 'a':
+			case 'd':
+			case 'w':
+			case 's': Player_Move(map_p, &cur_map, tmp, key); break;
 			}
-			else
-				Init_Data(&cur_map, tmp);
-			Print_Map(&cur_map);
-			Cursor_Move(POS_X+27, POS_Y + 6);
-			while (1)
+			if (cur_map.keep == 0)
 			{
-				key = getch();
-				switch (key)
+				if (stage != 0)
 				{
-				case 'u': break;
-				case 'r': Restart_Cur_Map(tmp, &cur_map); break;
-				case 'n': Restart_Game(player, init_map, &cur_map, &map_p, &stage); break;
-				case 'e': Save(player, &cur_map); return;
-				case 'p': Save(player, &cur_map); break;
-				case 'a':
-				case 'd':
-				case 'w':
-				case 's': Player_Move(map_p, &cur_map, key); break;
-				}
-				if (cur_map.keep == 0)
-				{
-					Cursor_Move(POS_X, POS_Y + cur_map.map_line + 3);
+					Cursor_Move(POS_X, POS_Y + cur_map.map_line + 4);
 					printf("Stage Clear!\n");
 					Sleep(1000);
-					break;
+
 				}
+				break;
 			}
 		}
 		stage++;
 		map_p = map_p->next;
 		op = NEW_GAME;
 	}
+	printf("\nSokoban Clear~!\n");
 }
 
 bool Load(PLAYER* player, MAP* map)
@@ -87,46 +82,18 @@ bool Load(PLAYER* player, MAP* map)
 
 	strcat(path, player->ID);
 	strcat(path, ".txt");
-	//strcat(path, strcat(player->ID, ".txt"));
 
 	FILE* fp = fopen(path, "r");
 	if (fp == NULL)
 		return false;
 
-	fscanf(fp, "%d", &(player->play_time));
-	fscanf(fp, "%d %d %d %d %d %d", &(map->map_line), &(map->box), &(map->keep), &(map->player_x), &(map->player_y), &(map->stage));
+	fscanf(fp, "%.3fd", &(player->play_time));
+	fscanf(fp, "%d %d %d %d %d %d %d\n", &(map->map_line), &(map->box), &(map->keep), &(map->player_x), &(map->player_y), &(map->stage), &(map->undo));
 	for (int i = 0; i < map->map_line; i++)
 		for (int j = 0; j < MAP_MAX_COL; j++)
 			fscanf(fp, "%c", &(map->map[i][j]));
 	map->next = NULL;
 	return true;
-}
-
-void Input_ID(PLAYER* player)
-{
-	char str[50];
-	int line = 0, i = 0;
-
-	FILE* fp = fopen("./res/ID_inputbox.txt", "r");
-	if (fp == NULL)
-	{
-		printf("FILE OPEN FAIL\n");
-		return;
-	}
-	Cursor_Move(POS_X, POS_Y);
-	while (1)
-	{
-		fgets(str, sizeof(str), fp);
-		if (!strcmp(str, "end"))
-			break;
-		Cursor_Move(POS_X, POS_Y + line);
-		printf("%s", str);
-		line++;
-	}
-	fclose(fp);
-
-	Cursor_Move(POS_X + 16, POS_Y + 2);
-	scanf("%s", player->ID);
 }
 
 void Display_Help()
@@ -152,35 +119,45 @@ void Display_Help()
 	system("cls");
 }
 
-/*================================================
-game command
-================================================*/
-void Restart_Cur_Map(MAP* init_map, MAP* cur_map)
+void Undo(MAP* tmp, MAP* cur_map)
 {
-	Deep_Copy(init_map, cur_map);
-	//undo var reset
+	if (cur_map->undo < 5 && !(tmp->player_x == cur_map->player_x && tmp->player_y == cur_map->player_y))
+	{
+		Init_Data(tmp, cur_map);
+		(cur_map->undo)++;
+		Print_Map(cur_map);
+	}
+}
+
+void Restart_Cur_Map(MAP* map_p, MAP* cur_map, MAP* tmp)
+{
+	Init_Data(map_p, tmp);
+	Init_Data(tmp, cur_map);
+	cur_map->undo = 0;
 	system("cls");
 	Print_Map(cur_map);
 }
 
-void Restart_Game(PLAYER* player, MAP* init_map, MAP* cur_map, MAP** map_p, int* stage)
+void Restart_Game(MAP* init_map, MAP* cur_map, MAP** map_p, int* stage, clock_t* start_time)
 {
-	//player->play_time = 0;
+	*start_time = clock();
 	*stage = 0;
 	*map_p = init_map;
 	cur_map->keep = 0;
 }
 
-void Save(PLAYER* player, MAP* cur_map)
+void Save(PLAYER* player, MAP* cur_map, clock_t start_time)
 {
+	clock_t end_time = clock();
 	char path[30] = "./res/save/";
 	strcat(path, player->ID);
 	strcat(path, ".txt");
 
 	FILE* fp = fopen(path, "w");
 
-	fprintf(fp, "%d\n", player->play_time);
-	fprintf(fp, "%d %d %d %d %d %d", cur_map->map_line, cur_map->box, cur_map->keep, cur_map->player_x, cur_map->player_y, cur_map->stage);
+	player->play_time += (float)(end_time - start_time) / CLOCKS_PER_SEC;
+	fprintf(fp, "%.3f\n", player->play_time);
+	fprintf(fp, "%d %d %d %d %d %d %d\n", cur_map->map_line, cur_map->box, cur_map->keep, cur_map->player_x, cur_map->player_y, cur_map->stage, cur_map->undo);
 	for (int i = 0; i < cur_map->map_line; i++)
 		for (int j = 0; j < MAP_MAX_COL; j++)
 			fprintf(fp, "%c", cur_map->map[i][j]);
@@ -190,7 +167,7 @@ void Save(PLAYER* player, MAP* cur_map)
 	printf("Save\n");
 }
 
-void Player_Move(MAP* init_map, MAP* cur_map, char key)
+void Player_Move(MAP* init_map, MAP* cur_map, MAP* tmp, char key)
 {
 	int cur_x, cur_y, next_x, next_y, check_x, check_y;
 
@@ -208,6 +185,8 @@ void Player_Move(MAP* init_map, MAP* cur_map, char key)
 	char next_c = cur_map->map[next_y][next_x];
 	char isbox = init_map->map[cur_y][cur_x];
 	char check_c = cur_map->map[check_y][check_x];
+
+	Init_Data(cur_map, tmp);
 
 	if (next_c == ' ')
 	{
@@ -257,4 +236,9 @@ void Player_Move(MAP* init_map, MAP* cur_map, char key)
 
 	system("cls");
 	Print_Map(cur_map);
+}
+
+void Rank()
+{
+
 }

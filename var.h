@@ -10,7 +10,7 @@
 typedef struct player
 {
 	char ID[30];
-	int play_time;
+	float play_time;
 }PLAYER;
 
 typedef struct map
@@ -20,5 +20,6 @@ typedef struct map
 	int box, keep;
 	int player_x, player_y;
 	int stage;
+	int undo;
 	struct map* next;
 }MAP;

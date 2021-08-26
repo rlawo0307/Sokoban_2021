@@ -39,7 +39,7 @@ void Menu(PLAYER* player, MAP* map)
 		case 'n': Play(player, map, NEW_GAME); break;
 		case 'f': Play(player, map, LOAD_FILE); break;
 		case 'h': Display_Help(); Show_Start_Screen(); key = ' '; break;
-		case 't': break;
+		case 't': Rank(); break;
 		}
 	}
 }
@@ -109,19 +109,7 @@ void Init_Data(MAP* ori, MAP* des)
 	des->player_x = ori->player_x;
 	des->player_y = ori->player_y;
 	des->stage = ori->stage;
-}
-
-void Deep_Copy(MAP* ori, MAP* des)
-{
-	for (int i = 0; i < MAP_MAX_ROW; i++)
-		for (int j = 0; j < MAP_MAX_COL; j++)
-			des->map[i][j] = ori->map[i][j];
-
-	des->map_line = ori->map_line;
-	des->box = ori->box;
-	des->keep = ori->keep;
-	des->player_x = ori->player_x;
-	des->player_y = ori->player_y;
+	des->undo = ori->undo;
 }
 
 void Print_Map(MAP* cur_map)
@@ -134,5 +122,33 @@ void Print_Map(MAP* cur_map)
 		Cursor_Move(Get_Cursor(1) + POS_X, Get_Cursor(0));
 		printf("%s", cur_map->map[i]);
 	}
+	Cursor_Move(POS_X, POS_Y+cur_map->map_line+4);
+	printf("Undo : %d", cur_map->undo);
 }
 
+void Input_ID(PLAYER* player)
+{
+	char str[50];
+	int line = 0, i = 0;
+
+	FILE* fp = fopen("./res/ID_inputbox.txt", "r");
+	if (fp == NULL)
+	{
+		printf("FILE OPEN FAIL\n");
+		return;
+	}
+	Cursor_Move(POS_X, POS_Y);
+	while (1)
+	{
+		fgets(str, sizeof(str), fp);
+		if (!strcmp(str, "end"))
+			break;
+		Cursor_Move(POS_X, POS_Y + line);
+		printf("%s", str);
+		line++;
+	}
+	fclose(fp);
+
+	Cursor_Move(POS_X + 16, POS_Y + 2);
+	scanf("%s", player->ID);
+}
