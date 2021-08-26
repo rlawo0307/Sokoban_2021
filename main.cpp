@@ -8,58 +8,14 @@
 int main()
 {
 	PLAYER player;
-	MAP* map = (MAP*)calloc(sizeof(MAP), 1);
-	char str[50];
-	int line = 0;
-	char key = ' ';
-	bool check;
+	MAP* map = (MAP*)calloc(1, sizeof(MAP));
 
-	//Map Load 
-	FILE* fp = fopen("./res/map.txt", "r");
-	if (fp == NULL)
-	{
-		printf("FILE OPEN FAIL\n");
-		return;
-	}
-	check = Load_Map(fp, map);
-	if (!check)
+	if (Load_Map(map) == false)
 	{
 		printf("Check Your Map!\n");
-		return;
+		return 0;
 	}
-	fclose(fp);
-
-	//Show Start Screen
-	FILE* fp = fopen("./res/start_screen.txt", "r");
-	if (fp == NULL)
-	{
-		printf("FILE OPEN FAIL\n");
-		return;
-	}
-	Cursor_Move(POS_X, POS_Y);
-	while (1)
-	{
-		fgets(str, sizeof(str), fp);
-		if (!strcmp(str, "end"))
-			break;
-		Cursor_Move(POS_X, POS_Y + line);
-		printf("%s", str);
-		line++;
-	}
-	fclose(fp);
-
-	//Select menu
-	Cursor_Move(POS_X + 50, POS_Y + 6);
-	while (key != 'f' && key != 'n' && key != 'h' && key != 't')
-	{
-		key = getch();
-		switch (key)
-		{
-		case 'n': New_Game(&player, map, 1); break;
-		case 'f': Load(&player, map, 0); break;
-		case 'h': Display_Help(); Show_Start_Screen(); break;
-		case 't': break;
-		}
-	}
+	//Show_Start_Screen();
+	Menu(&player, map);
 	return 0;
 }

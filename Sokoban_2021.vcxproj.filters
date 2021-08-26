@@ -24,9 +24,6 @@
     <ClCompile Include="control.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="start.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="func.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

@@ -4,6 +4,8 @@
 #define MAP_MAX_COL 31
 #define POS_X 3
 #define POS_Y 3
+#define NEW_GAME 1
+#define LOAD_FILE 0
 
 typedef struct player
 {
@@ -18,5 +20,5 @@ typedef struct map
 	int box, keep;
 	int player_x, player_y;
 	int stage;
-	MAP* next;
+	struct map* next;
 }MAP;

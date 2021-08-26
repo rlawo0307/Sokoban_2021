@@ -5,16 +5,10 @@
 #include "var.h"
 #include "control.h"
 
-bool Load_Map(FILE*, MAP*);
-void Init_Data(MAP*, MAP*);
-
 void Show_Start_Screen();
-void Enter_ID(char*);
-void Start_Menu(PLAYER*);
-void Start_Screen(PLAYER*);
-void Deep_Copy(DATA1*, DATA2*);
-void Print_Map(DATA2*);
+void Menu(PLAYER*, MAP*);
 
-bool Check_Box_Keep(DATA1*, DATA2*);
-//bool Ready(FILE*, PLAYER*, DATA1*, DATA2*);
-void Player_Move(DATA1*, DATA2*, char);
+bool Load_Map(MAP*);
+void Init_Data(MAP*, MAP*);
+void Deep_Copy(MAP*, MAP*);
+void Print_Map(MAP*);

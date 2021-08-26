@@ -5,12 +5,12 @@
 #include <conio.h>
 #include "func.h"
 
-void Play(PLAYER*, MAP*, MAP*);
-
-void New_Game(PLAYER*, MAP*, int);
-
-void Restart_Cur_Map(DATA1*, DATA2*);
-void Restart_Game(FILE*, PLAYER*, DATA1*, DATA2*);
-void Save(PLAYER*, DATA1*, DATA2*);
-void Load();
+void Play(PLAYER*, MAP*, int);
+bool Load(PLAYER*, MAP*);
+void Input_ID(PLAYER*);
 void Display_Help();
+
+void Restart_Cur_Map(MAP*, MAP*);
+void Restart_Game(PLAYER*, MAP*, MAP*, MAP**, int*);
+void Save(PLAYER*, MAP*);
+void Player_Move(MAP*, MAP*, char);
