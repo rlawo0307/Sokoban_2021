@@ -82,11 +82,10 @@ void Init_Play_Time(PLAYER* player, int stage, int op)
 	}
 	else // Restart Game
 	{
-		while (i < stage)
+		while (i++ <= stage)
 		{
-			cur = cur->next;
 			cur->play_time = 0;
-			i++;
+			cur = cur->next;
 		}
 	}
 }
@@ -191,17 +190,17 @@ void Input_ID(PLAYER* player)
 
 void Cal_Play_Time(PLAY_TIME* head, int stage, int start_time, int end_time)
 {
-	PLAY_TIME* tmp = head;
+	PLAY_TIME* tmp = head->next;
 	int i = 0;
-
-	if(head->play_time != 0)
-		while (i++ < stage-1)
-		{
-			head->play_time += tmp->play_time;
-			tmp = tmp->next;
-		}
-	tmp = tmp->next;
-	tmp->play_time = (float)(end_time - start_time) / CLOCKS_PER_SEC;
-	head->play_time += tmp->play_time;
-	//(float)(end_time - start_time) / CLOCKS_PER_SEC;
+	
+	head->play_time = 0;
+	while (tmp->stage <= stage)
+	{
+		if(tmp->stage == stage)
+			tmp->play_time += (float)(end_time - start_time) / CLOCKS_PER_SEC;
+		head->play_time += tmp->play_time;
+		if (tmp->next == NULL)
+			break;
+		tmp = tmp->next;
+	}
 }

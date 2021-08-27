@@ -61,8 +61,8 @@ void Play(PLAYER* player, MAP* init_map, int op)
 			{
 				if (stage != 0)
 				{
-					end_time = clock();
-					Cal_Play_Time(player->play_time, stage, start_time, end_time);
+					//end_time = clock();
+					//Cal_Play_Time(player->play_time, stage, start_time, end_time);
 					Save(player, &cur_map, start_time);
 					Cursor_Move(POS_X, POS_Y + cur_map.map_line + 4);
 					printf("Stage Clear!\n");
@@ -162,11 +162,10 @@ void Save(PLAYER* player, MAP* cur_map, int start_time)
 	fprintf(fp, "ID : %s\n", player->ID);
 	fprintf(fp, "Last Stage : %d\n", cur_map->stage);
 	fprintf(fp, "Total Play Time : %.3f\n", player->play_time->play_time);
-	while (i < cur_map->stage)
+	while (i++ < cur_map->stage)
 	{
 		tmp = tmp->next;
 		fprintf(fp, "\tStage %d : %.3f\n", tmp->stage, tmp->play_time);
-		i++;
 	}
 	fprintf(fp, "map line : %d\nbox : %d\nkeep : %d\nplayer_x : %d\nplayer_y : %d\nundo : %d\n",
 		cur_map->map_line, cur_map->box, cur_map->keep, cur_map->player_x, cur_map->player_y, cur_map->stage, cur_map->undo);
