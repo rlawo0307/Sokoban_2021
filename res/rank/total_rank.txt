@@ -1,0 +1,4 @@
+[ RANK ]	[ ID ]	[ PLAY TIME]
+      1	      fdsa	      10
+      2	      kjh	      20	
+end

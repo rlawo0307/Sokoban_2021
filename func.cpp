@@ -127,7 +127,7 @@ void Menu(PLAYER* player, MAP* map)
 		case 'n': Play(player, map, NEW_GAME); break;
 		case 'f': Play(player, map, LOAD_FILE); break;
 		case 'h': Display_Help(); Show_Start_Screen(); key = ' '; break;
-		case 't': Rank(); break;
+		case 't': Show_Rank(map); break;
 		}
 	}
 }
@@ -200,4 +200,40 @@ void Cal_Play_Time(PLAY_TIME* head, int stage, int start_time, int end_time)
 		head->play_time += tmp->play_time;
 		tmp = tmp->next;
 	}
+}
+
+void Show_Stage_Rank(char stage)
+{
+	printf("%c\n", stage);
+	char path[50] = "./res/rank/stage";
+	char tmp[10] = { 0 };
+	char str[50];
+	char key = ' ';
+
+	tmp[0] = stage;
+	printf("%s\n", tmp);
+	strcat(path, tmp);
+	strcat(path, ".txt");
+
+	printf("%s\n", path);
+	Sleep(3000);
+
+	FILE* fp = fopen(path, "r");
+	if (fp == NULL)
+	{
+		printf("FILE OPEN FAIL\n");
+		return;
+	}
+
+	system("cls");
+	while (1)
+	{
+		fgets(str, sizeof(str), fp);
+		if (!strncmp(str, "end", strlen("end")))
+			break;
+		printf("%s", str);
+	}
+
+	while (key != 'e')
+		key = getch();
 }

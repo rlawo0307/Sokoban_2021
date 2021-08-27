@@ -15,4 +15,4 @@ void Restart_Cur_Map(MAP*, MAP*, MAP*);
 void Restart_Game(PLAYER*, MAP*, MAP*, MAP**, int*);
 void Save(PLAYER*, MAP*, int);
 void Player_Move(MAP*, MAP*, MAP*, char);
-void Rank();
+void Show_Rank(MAP*);

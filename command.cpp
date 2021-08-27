@@ -249,7 +249,42 @@ void Player_Move(MAP* init_map, MAP* cur_map, MAP* tmp, char key)
 	Print_Map(cur_map);
 }
 
-void Rank()
+//t num 입력받기
+void Show_Rank(MAP* map)
 {
-	;;;
+	int cnt = 0;
+	char str[50] = "";
+	char input[10] = {0};
+	char string[100] = "* Show Stage num Rank ( t num ), Quit( e ) :           ";
+	FILE* fp = NULL;
+
+	do
+	{
+		if (input[0] == 't' || input[2] -'0' > 0 || input[2] - '0' <= map->stage)
+			Show_Stage_Rank(input[2]);
+
+		system("cls");
+		Cursor_Move(POS_X, POS_Y);
+		cnt = 0;
+		fp = fopen("./res/rank/total_rank.txt", "r");
+		if (fp == NULL)
+		{
+			printf("FILE OPEN FAIL\n");
+			return;
+		}
+		while (1)
+		{
+			fgets(str, sizeof(str), fp);
+			if (!strncmp(str, "end", strlen("end")))
+				break;
+			printf("%s", str);
+			cnt++;
+		}
+		Cursor_Move(POS_X, POS_Y + cnt + 2);
+		printf("%s", string);
+		Cursor_Move(POS_X + strlen(string) - 10, POS_Y + cnt + 2);
+		scanf("%s", input);
+		printf("%s\n", input);
+		//key = getch();
+	} while (strcmp(input, "e"));
 }
