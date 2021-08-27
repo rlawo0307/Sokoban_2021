@@ -251,5 +251,5 @@ void Player_Move(MAP* init_map, MAP* cur_map, MAP* tmp, char key)
 
 void Rank()
 {
-	;
+	;;;
 }
