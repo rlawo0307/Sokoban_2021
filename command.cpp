@@ -8,7 +8,7 @@ void Play(PLAYER* player, MAP* init_map, int op)
 	MAP* tmp = (MAP*)calloc(1, sizeof(MAP));
 	char key;
 	int i = 0, stage = 1;
-	clock_t start_time, end_time;
+	clock_t start_time;
 
 	system("cls");
 	Input_ID(player);
@@ -24,11 +24,8 @@ void Play(PLAYER* player, MAP* init_map, int op)
 		stage = cur_map.stage;
 	}
 
-	while (i < stage)
-	{
+	while (i++ < stage)
 		map_p = map_p->next;
-		i++;
-	}
 	
 	while (map_p != NULL)
 	{
@@ -42,7 +39,7 @@ void Play(PLAYER* player, MAP* init_map, int op)
 
 		start_time = clock();
 		Print_Map(&cur_map);
-		while (1)
+		while (cur_map.keep != 0)
 		{
 			key = getch();
 			switch (key)
@@ -57,18 +54,12 @@ void Play(PLAYER* player, MAP* init_map, int op)
 			case 'w':
 			case 's': Player_Move(map_p, &cur_map, tmp, key); break;
 			}
-			if (cur_map.keep == 0)
+			if (cur_map.keep == 0 && stage != 0)
 			{
-				if (stage != 0)
-				{
-					//end_time = clock();
-					//Cal_Play_Time(player->play_time, stage, start_time, end_time);
-					Save(player, &cur_map, start_time);
-					Cursor_Move(POS_X, POS_Y + cur_map.map_line + 4);
-					printf("Stage Clear!\n");
-					Sleep(1000);
-				}
-				break;
+				Save(player, &cur_map, start_time);
+				Cursor_Move(POS_X, POS_Y + cur_map.map_line + 4);
+				printf("Stage Clear!\n");
+				Sleep(1000);
 			}
 		}
 		stage++;
@@ -80,7 +71,9 @@ void Play(PLAYER* player, MAP* init_map, int op)
 
 bool Load(PLAYER* player, MAP* map)
 {
+	PLAY_TIME* tmp = player->play_time->next;
 	char path[50] = "./res/save/";
+	int i = 0;
 
 	strcat(path, player->ID);
 	strcat(path, ".txt");
@@ -89,8 +82,16 @@ bool Load(PLAYER* player, MAP* map)
 	if (fp == NULL)
 		return false;
 
-	fscanf(fp, "%.3fd", &(player->play_time));
-	fscanf(fp, "%d %d %d %d %d %d %d\n", &(map->map_line), &(map->box), &(map->keep), &(map->player_x), &(map->player_y), &(map->stage), &(map->undo));
+	fscanf(fp, "ID : %s\n", player->ID);
+	fscanf(fp, "Last Stage : %d\n", &(map->stage));
+	fscanf(fp, "Total Play Time : %f\n", &(player->play_time->play_time));
+	while (tmp != NULL && i++ < map->stage)
+	{
+		fscanf(fp, "\tStage %d : %f\n", &(tmp->stage), &(tmp->play_time));
+		tmp = tmp->next;
+	}
+	fscanf(fp, "map line : %d\nbox : %d\nkeep : %d\nplayer_x : %d\nplayer_y : %d\nundo : %d\n",
+		&(map->map_line), &(map->box), &(map->keep), &(map->player_x), &(map->player_y), &(map->undo));
 	for (int i = 0; i < map->map_line; i++)
 		for (int j = 0; j < MAP_MAX_COL; j++)
 			fscanf(fp, "%c", &(map->map[i][j]));
@@ -172,7 +173,6 @@ void Save(PLAYER* player, MAP* cur_map, int start_time)
 	for (int i = 0; i < cur_map->map_line; i++)
 		for (int j = 0; j < MAP_MAX_COL; j++)
 			fprintf(fp, "%c", cur_map->map[i][j]);
-
 	Cursor_Move(POS_X, POS_Y+cur_map->map_line+3);
 	printf("Save\n");
 	fclose(fp);

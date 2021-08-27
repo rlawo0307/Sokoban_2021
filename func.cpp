@@ -67,7 +67,6 @@ void Init_Play_Time(PLAYER* player, int stage, int op)
 
 	if (op == START_GAME) // Start Game
 	{
-		//cur->play_time = (float)(clock() - clock()) / CLOCKS_PER_SEC;
 		while (i++ < stage)
 		{
 			tmp = (PLAY_TIME*)calloc(1, sizeof(PLAY_TIME));
@@ -194,13 +193,11 @@ void Cal_Play_Time(PLAY_TIME* head, int stage, int start_time, int end_time)
 	int i = 0;
 	
 	head->play_time = 0;
-	while (tmp->stage <= stage)
+	while (tmp != NULL && tmp->stage <= stage)
 	{
 		if(tmp->stage == stage)
 			tmp->play_time += (float)(end_time - start_time) / CLOCKS_PER_SEC;
 		head->play_time += tmp->play_time;
-		if (tmp->next == NULL)
-			break;
 		tmp = tmp->next;
 	}
 }
