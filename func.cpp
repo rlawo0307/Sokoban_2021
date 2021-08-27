@@ -1,6 +1,96 @@
 #include "func.h"
 #include "command.h"
 
+bool Load_Map(MAP* head)
+{
+	MAP* last = head;
+	MAP* tmp = head;
+	char str[MAP_MAX_COL];
+	int line = 0;
+
+	FILE* fp = fopen("./res/map.txt", "r");
+	if (fp == NULL)
+	{
+		printf("FILE OPEN FAIL\n");
+		return false;
+	}
+
+	while (1)
+	{
+		fgets(str, sizeof(str), fp);
+		if (!strncmp(str, "map", 3))
+		{
+			line = -1;
+			tmp = (MAP*)calloc(1, sizeof(MAP));
+		}
+		else if (!strncmp(str, "\n", 2) || !strncmp(str, "end", 3))
+		{
+			if (tmp->box != tmp->keep)
+				return false;
+			tmp->stage = last->stage + 1;
+			last->next = tmp;
+			last = last->next;
+			if (!strncmp(str, "end", 3))
+			{
+				head->stage = tmp->stage;
+				break;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < strlen(str); i++)
+			{
+				tmp->map[line][i] = str[i];
+				if (str[i] == '$')
+					(tmp->box)++;
+				else if (str[i] == 'O')
+					(tmp->keep)++;
+				else if (str[i] == '@')
+				{
+					tmp->player_x = i;
+					tmp->player_y = line;
+				}
+			}
+			(tmp->map_line)++;
+		}
+		line++;
+	}
+	return true;
+}
+
+void Init_Play_Time(PLAYER* player, int stage, int op)
+{
+	PLAY_TIME* cur = player->play_time;
+	PLAY_TIME* tmp = NULL;
+	
+	int i = 0;
+
+	if (op == START_GAME) // Start Game
+	{
+		//cur->play_time = (float)(clock() - clock()) / CLOCKS_PER_SEC;
+		while (i++ < stage)
+		{
+			tmp = (PLAY_TIME*)calloc(1, sizeof(PLAY_TIME));
+			tmp->stage = i;
+			tmp->play_time = 0;
+			tmp->next = NULL;
+
+			cur->next = tmp;
+			cur = cur->next;
+		}
+		player->play_time->stage = cur->stage;
+	}
+	else // Restart Game
+	{
+		while (i < stage)
+		{
+			cur = cur->next;
+			cur->play_time = 0;
+			i++;
+		}
+	}
+}
+
 void Show_Start_Screen()
 {
 	char str[50];
@@ -42,60 +132,6 @@ void Menu(PLAYER* player, MAP* map)
 		case 't': Rank(); break;
 		}
 	}
-}
-
-bool Load_Map(MAP* head)
-{
-	MAP* last = head;
-	MAP* tmp = head;
-	char str[MAP_MAX_COL];
-	int line = 0;
-	
-	FILE* fp = fopen("./res/map.txt", "r");
-	if (fp == NULL)
-	{
-		printf("FILE OPEN FAIL\n");
-		return false;
-	}
-
-	while (1)
-	{
-		fgets(str, sizeof(str), fp);
-		if (!strncmp(str, "map", 3))
-		{
-			line = -1;
-			tmp = (MAP*)calloc(1, sizeof(MAP));
-		}
-		else if (!strncmp(str, "\n", 2) || !strncmp(str, "end", 3))
-		{
-			if (tmp->box != tmp->keep)
-				return false;
-			tmp->stage = last->stage + 1;
-			last->next = tmp;
-			last = last->next;
-			if (!strncmp(str, "end", 3))
-				break;
-		}
-		else
-		{
-			for (int i = 0; i < strlen(str); i++)
-			{
-				tmp->map[line][i] = str[i];
-				if (str[i] == '$')
-					(tmp->box)++;
-				else if (str[i] == 'O')
-					(tmp->keep)++;
-				else if (str[i] == '@')
-				{
-					tmp->player_x = i;
-					tmp->player_y = line;
-				}
-			}
-			(tmp->map_line)++;
-		}
-		line++;
-	}
-	return true;
 }
 
 void Init_Data(MAP* ori, MAP* des)
@@ -151,4 +187,21 @@ void Input_ID(PLAYER* player)
 
 	Cursor_Move(POS_X + 16, POS_Y + 2);
 	scanf("%s", player->ID);
+}
+
+void Cal_Play_Time(PLAY_TIME* head, int stage, int start_time, int end_time)
+{
+	PLAY_TIME* tmp = head;
+	int i = 0;
+
+	if(head->play_time != 0)
+		while (i++ < stage-1)
+		{
+			head->play_time += tmp->play_time;
+			tmp = tmp->next;
+		}
+	tmp = tmp->next;
+	tmp->play_time = (float)(end_time - start_time) / CLOCKS_PER_SEC;
+	head->play_time += tmp->play_time;
+	//(float)(end_time - start_time) / CLOCKS_PER_SEC;
 }

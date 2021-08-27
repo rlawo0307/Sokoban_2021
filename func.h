@@ -7,7 +7,9 @@
 
 void Show_Start_Screen();
 void Menu(PLAYER*, MAP*);
+void Init_Play_Time(PLAYER*, int, int);
 bool Load_Map(MAP*);
 void Init_Data(MAP*, MAP*);
 void Print_Map(MAP*);
 void Input_ID(PLAYER*);
+void Cal_Play_Time(PLAY_TIME*, int, int, int);

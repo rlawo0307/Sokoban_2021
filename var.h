@@ -6,11 +6,20 @@
 #define POS_Y 3
 #define NEW_GAME 1
 #define LOAD_FILE 0
+#define START_GAME 0
+#define RESTART_GAME 1
+
+typedef struct play_time
+{
+	int stage;
+	float play_time;
+	struct play_time* next;
+}PLAY_TIME;
 
 typedef struct player
 {
-	char ID[30];
-	float play_time;
+	char ID[30] = "";
+	PLAY_TIME* play_time;
 }PLAYER;
 
 typedef struct map
