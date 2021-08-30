@@ -47,8 +47,8 @@ void Play(PLAYER* player, MAP* init_map, int op)
 			case 'u': Undo(tmp, &cur_map); break;
 			case 'r': Restart_Cur_Map(map_p, &cur_map, tmp); break;
 			case 'n': Restart_Game(player, init_map, &cur_map, &map_p, &stage); break;
-			case 'e': Save(player, &cur_map, start_time); return;
-			case 'p': Save(player, &cur_map, start_time); break;
+			case 'e': Save_Data(player, &cur_map, start_time); return;
+			case 'p': Save_Data(player, &cur_map, start_time); break;
 			case 'a':
 			case 'd':
 			case 'w':
@@ -56,7 +56,7 @@ void Play(PLAYER* player, MAP* init_map, int op)
 			}
 			if (cur_map.keep == 0 && stage != 0)
 			{
-				Save(player, &cur_map, start_time);
+				Save_Data(player, &cur_map, start_time);
 				Cursor_Move(POS_X, POS_Y + cur_map.map_line + 4);
 				printf("Stage Clear!\n");
 				Sleep(1000);
@@ -66,13 +66,14 @@ void Play(PLAYER* player, MAP* init_map, int op)
 		map_p = map_p->next;
 		op = NEW_GAME;
 	}
+	Save_Rank(player, 0);
 	printf("\nSokoban Clear~!\n");
 }
 
 bool Load(PLAYER* player, MAP* map)
 {
 	PLAY_TIME* tmp = player->play_time->next;
-	char path[50] = "./res/save/";
+	char path[50] = "./res/data/";
 	int i = 0;
 
 	strcat(path, player->ID);
@@ -118,8 +119,6 @@ void Display_Help()
 
 	while (key != 'q')
 		key = getch();
-
-	system("cls");
 }
 
 void Undo(MAP* tmp, MAP* cur_map)
@@ -149,11 +148,11 @@ void Restart_Game(PLAYER* player, MAP* init_map, MAP* cur_map, MAP** map_p, int*
 	cur_map->keep = 0;
 }
 
-void Save(PLAYER* player, MAP* cur_map, int start_time)
+void Save_Data(PLAYER* player, MAP* cur_map, int start_time)
 {
 	int i = 0;
 	PLAY_TIME* tmp = player->play_time;
-	char path[30] = "./res/save/";
+	char path[30] = "./res/data/";
 	strcat(path, player->ID);
 	strcat(path, ".txt");
 	FILE* fp = fopen(path, "w");
@@ -173,9 +172,12 @@ void Save(PLAYER* player, MAP* cur_map, int start_time)
 	for (int i = 0; i < cur_map->map_line; i++)
 		for (int j = 0; j < MAP_MAX_COL; j++)
 			fprintf(fp, "%c", cur_map->map[i][j]);
+	fclose(fp);
+
+	Save_Rank(player, cur_map->stage);
+
 	Cursor_Move(POS_X, POS_Y+cur_map->map_line+3);
 	printf("Save\n");
-	fclose(fp);
 }
 
 void Player_Move(MAP* init_map, MAP* cur_map, MAP* tmp, char key)
@@ -249,24 +251,28 @@ void Player_Move(MAP* init_map, MAP* cur_map, MAP* tmp, char key)
 	Print_Map(cur_map);
 }
 
-//t num 입력받기
 void Show_Rank(MAP* map)
 {
 	int cnt = 0;
 	char str[50] = "";
-	char input[10] = {0};
-	char string[100] = "* Show Stage num Rank ( t num ), Quit( e ) :           ";
+	char string[100] = "*Show Stage num Rank ( t num )\n   *Press q to go back\n";
 	FILE* fp = NULL;
+	char key = ' ';
+	int stage = -1;
 
 	do
 	{
-		if (input[0] == 't' || input[2] -'0' > 0 || input[2] - '0' <= map->stage)
-			Show_Stage_Rank(input[2]);
+		if (key == 't')
+		{
+			scanf("%d", &stage);
+			if (stage > 0 && stage <= map->stage)
+				Show_Stage_Rank(stage);
+		}
 
 		system("cls");
 		Cursor_Move(POS_X, POS_Y);
 		cnt = 0;
-		fp = fopen("./res/rank/total_rank.txt", "r");
+		fp = fopen("./res/rank/stage0.txt", "r");
 		if (fp == NULL)
 		{
 			printf("FILE OPEN FAIL\n");
@@ -282,9 +288,7 @@ void Show_Rank(MAP* map)
 		}
 		Cursor_Move(POS_X, POS_Y + cnt + 2);
 		printf("%s", string);
-		Cursor_Move(POS_X + strlen(string) - 10, POS_Y + cnt + 2);
-		scanf("%s", input);
-		printf("%s\n", input);
-		//key = getch();
-	} while (strcmp(input, "e"));
+		Cursor_Move(POS_X + strlen(string) - 10, POS_Y + cnt + 3);
+		scanf("%c", &key);
+	} while (key != 'q');
 }

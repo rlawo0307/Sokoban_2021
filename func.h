@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <float.h> 
 #include "var.h"
 #include "control.h"
 
@@ -13,4 +14,5 @@ void Init_Data(MAP*, MAP*);
 void Print_Map(MAP*);
 void Input_ID(PLAYER*);
 void Cal_Play_Time(PLAY_TIME*, int, int, int);
-void Show_Stage_Rank(char);
+void Show_Stage_Rank(int);
+void Save_Rank(PLAYER*, int);

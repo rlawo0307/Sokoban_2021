@@ -100,6 +100,8 @@ void Show_Start_Screen()
 		printf("FILE OPEN FAIL\n");
 		return;
 	}
+	
+	system("cls");
 	Cursor_Move(POS_X, POS_Y);
 	while (1)
 	{
@@ -127,7 +129,7 @@ void Menu(PLAYER* player, MAP* map)
 		case 'n': Play(player, map, NEW_GAME); break;
 		case 'f': Play(player, map, LOAD_FILE); break;
 		case 'h': Display_Help(); Show_Start_Screen(); key = ' '; break;
-		case 't': Show_Rank(map); break;
+		case 't': Show_Rank(map); Show_Start_Screen(); key = ' '; break;
 		}
 	}
 }
@@ -202,21 +204,17 @@ void Cal_Play_Time(PLAY_TIME* head, int stage, int start_time, int end_time)
 	}
 }
 
-void Show_Stage_Rank(char stage)
+void Show_Stage_Rank(int stage)
 {
-	printf("%c\n", stage);
 	char path[50] = "./res/rank/stage";
 	char tmp[10] = { 0 };
 	char str[50];
 	char key = ' ';
+	int cnt = 0;
 
-	tmp[0] = stage;
-	printf("%s\n", tmp);
+	tmp[0] = stage + '0';
 	strcat(path, tmp);
 	strcat(path, ".txt");
-
-	printf("%s\n", path);
-	Sleep(3000);
 
 	FILE* fp = fopen(path, "r");
 	if (fp == NULL)
@@ -232,8 +230,48 @@ void Show_Stage_Rank(char stage)
 		if (!strncmp(str, "end", strlen("end")))
 			break;
 		printf("%s", str);
+		cnt++;
 	}
 
-	while (key != 'e')
+	Cursor_Move(POS_X, POS_Y + cnt + 2);
+	printf("*Press q to go back");
+	while (key != 'q')
 		key = getch();
+}
+
+//un_complete
+void Save_Rank(PLAYER* player, int stage)
+{
+	PLAY_TIME* tmp = player->play_time;
+	char path[50] = "./res/rank/stage";
+	char str[50] = { 0 };
+	int i = 0, rank = 1;
+	float rank_tmp = FLT_MAX;
+	int offset = 0;
+
+	while (i++ < stage)
+		tmp = tmp->next;
+
+	str[0] = stage + '0';
+	strcat(path, str);
+	strcat(path, ".txt");
+
+	FILE* fp = NULL;
+	fp = fopen(path, "r+");
+	//seek file pointer
+	if (fp == NULL)
+	{
+		fp = fopen(path, "w");
+		fprintf(fp, "* Stage %d\n\n[ RANK ]\t[ ID ]\t[ PLAY TIME ]\nend", stage);
+		fseek(fp, -3, SEEK_END);
+	}
+	else
+	{
+		fseek(fp, 42, SEEK_SET);
+		
+	}
+	fread(str, sizeof(char), 1000, fp);
+	fprintf(fp, "%d\t%s\t%.3f\n", rank, player->ID, player->play_time->play_time);
+	fprintf(fp, "%s", str);
+	fclose(fp);
 }

@@ -1,4 +1,8 @@
-fdsafsda
-fdsafsa
-fdsafa
+* Stage 1
+
+[ RANK ]	[ ID ]	[ PLAY TIME ]
+2	kjh	3.190
+end1	kjh	1.119
+
+2	kjh	3.190
 end

@@ -13,6 +13,6 @@ void Display_Help();
 void Undo(MAP*, MAP*);
 void Restart_Cur_Map(MAP*, MAP*, MAP*);
 void Restart_Game(PLAYER*, MAP*, MAP*, MAP**, int*);
-void Save(PLAYER*, MAP*, int);
+void Save_Data(PLAYER*, MAP*, int);
 void Player_Move(MAP*, MAP*, MAP*, char);
 void Show_Rank(MAP*);
